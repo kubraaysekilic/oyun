@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jump Runner</title>
+    <title>Cozy Kitty Jump</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -16,8 +18,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFF5F8 0%, #F0E6FF 50%, #E6F7FF 100%);
+            font-family: 'Quicksand', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
 
@@ -26,10 +28,11 @@
         }
 
         h1 {
-            color: #e94560;
+            color: #E8A0BF;
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+            text-shadow: 2px 2px 0px #fff, 0 0 20px rgba(232, 160, 191, 0.3);
+            font-weight: 700;
         }
 
         .score-board {
@@ -40,60 +43,63 @@
         }
 
         .score-item {
-            color: #fff;
+            color: #9B8AA5;
             font-size: 1.2rem;
+            font-weight: 600;
         }
 
         .score-item span {
-            color: #00d9ff;
+            color: #B4D4E7;
             font-weight: bold;
             font-size: 1.4rem;
         }
 
         #gameCanvas {
-            border: 4px solid #e94560;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(233, 69, 96, 0.3), 
-                        inset 0 0 50px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #228B22 100%);
+            border: 4px solid #E8A0BF;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(232, 160, 191, 0.25), 
+                        0 0 0 8px rgba(255, 255, 255, 0.5);
         }
 
         .instructions {
-            color: #aaa;
+            color: #9B8AA5;
             margin-top: 15px;
             font-size: 1rem;
         }
 
         .instructions kbd {
-            background: #333;
+            background: linear-gradient(135deg, #FFE5EC 0%, #E6F7FF 100%);
             padding: 5px 12px;
-            border-radius: 5px;
-            border: 1px solid #555;
-            color: #00d9ff;
+            border-radius: 8px;
+            border: 2px solid #E8A0BF;
+            color: #9B8AA5;
             font-family: inherit;
+            font-weight: 600;
         }
 
         #startMessage {
             position: absolute;
-            color: #fff;
+            color: #9B8AA5;
             font-size: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0px #fff;
             pointer-events: none;
+            font-weight: 600;
         }
 
         #gameOverMessage {
             display: none;
             position: absolute;
-            color: #e94560;
+            color: #E8A0BF;
             font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0px #fff;
             pointer-events: none;
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>🏃 Jump Runner 🏃</h1>
+        <h1>🐱 Cozy Kitty Jump �</h1>
         <div class="score-board">
             <div class="score-item">Score: <span id="score">0</span></div>
             <div class="score-item">High Score: <span id="highScore">0</span></div>
@@ -124,7 +130,7 @@
         // Ground
         const groundY = 250;
 
-        // Player
+        // Cat player
         const player = {
             x: 80,
             y: groundY - 50,
@@ -132,10 +138,23 @@
             height: 50,
             velocityY: 0,
             jumping: false,
-            color: '#e94560',
-            eyeColor: '#fff',
-            pupilColor: '#000'
+            color: '#FFB5C5',
+            innerColor: '#FFC8D6',
+            eyeColor: '#2D2D2D',
+            noseColor: '#E8A0BF',
+            blushColor: 'rgba(255, 182, 193, 0.5)'
         };
+
+        // Flowers decoration
+        let flowers = [];
+        for (let i = 0; i < 8; i++) {
+            flowers.push({
+                x: Math.random() * canvas.width,
+                y: groundY + 10 + Math.random() * 30,
+                size: Math.random() * 8 + 6,
+                color: ['#FFB5C5', '#B4D4E7', '#C9B1FF', '#FFFACD'][Math.floor(Math.random() * 4)]
+            });
+        }
 
         // Gravity and jump
         const gravity = 0.8;
@@ -162,26 +181,41 @@
         }
 
         function drawBackground() {
-            // Sky gradient
+            // Soft pastel sky gradient
             const skyGradient = ctx.createLinearGradient(0, 0, 0, groundY);
-            skyGradient.addColorStop(0, '#87CEEB');
-            skyGradient.addColorStop(1, '#E0F6FF');
+            skyGradient.addColorStop(0, '#E6F7FF');
+            skyGradient.addColorStop(0.5, '#FFF5F8');
+            skyGradient.addColorStop(1, '#F0E6FF');
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, canvas.width, groundY);
 
-            // Sun
-            ctx.fillStyle = '#FFD700';
+            // Soft sun with glow
+            ctx.fillStyle = '#FFFACD';
             ctx.beginPath();
-            ctx.arc(700, 60, 40, 0, Math.PI * 2);
+            ctx.arc(700, 60, 45, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#FFF8DC';
+            ctx.fillStyle = '#FFF8E7';
             ctx.beginPath();
-            ctx.arc(700, 60, 30, 0, Math.PI * 2);
+            ctx.arc(700, 60, 35, 0, Math.PI * 2);
             ctx.fill();
+            // Sun blush
+            ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
+            ctx.beginPath();
+            ctx.arc(690, 65, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(710, 65, 8, 0, Math.PI * 2);
+            ctx.fill();
+            // Sun smile
+            ctx.strokeStyle = '#E8A0BF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(700, 62, 12, 0.1 * Math.PI, 0.9 * Math.PI);
+            ctx.stroke();
 
-            // Clouds
-            ctx.fillStyle = '#fff';
+            // Fluffy pastel clouds
             clouds.forEach(cloud => {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                 ctx.beginPath();
                 ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, cloud.height / 2, 0, 0, Math.PI * 2);
                 ctx.fill();
@@ -191,113 +225,275 @@
                 ctx.beginPath();
                 ctx.ellipse(cloud.x + cloud.width / 3, cloud.y + 5, cloud.width / 3, cloud.height / 2.5, 0, 0, Math.PI * 2);
                 ctx.fill();
+                // Pink tint on clouds
+                ctx.fillStyle = 'rgba(255, 213, 224, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(cloud.x, cloud.y + 5, cloud.width / 3, cloud.height / 3, 0, 0, Math.PI * 2);
+                ctx.fill();
             });
 
-            // Ground
+            // Soft pastel ground
             const groundGradient = ctx.createLinearGradient(0, groundY, 0, canvas.height);
-            groundGradient.addColorStop(0, '#90EE90');
-            groundGradient.addColorStop(0.3, '#32CD32');
-            groundGradient.addColorStop(1, '#228B22');
+            groundGradient.addColorStop(0, '#C8E6C9');
+            groundGradient.addColorStop(0.5, '#A8D5A2');
+            groundGradient.addColorStop(1, '#8FBC8F');
             ctx.fillStyle = groundGradient;
             ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
 
-            // Ground texture lines
-            ctx.strokeStyle = '#228B22';
-            ctx.lineWidth = 2;
+            // Cute grass tufts
+            ctx.fillStyle = '#98D4A0';
             groundLines.forEach(line => {
                 ctx.beginPath();
-                ctx.moveTo(line.x, groundY + 5);
-                ctx.lineTo(line.x + line.width, groundY + 5);
-                ctx.stroke();
+                ctx.moveTo(line.x, groundY);
+                ctx.quadraticCurveTo(line.x + 3, groundY - 8, line.x + 6, groundY);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(line.x + 8, groundY);
+                ctx.quadraticCurveTo(line.x + 11, groundY - 6, line.x + 14, groundY);
+                ctx.fill();
+            });
+
+            // Draw flowers
+            flowers.forEach(flower => {
+                // Flower petals
+                ctx.fillStyle = flower.color;
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    const angle = (i * 72) * Math.PI / 180;
+                    ctx.ellipse(
+                        flower.x + Math.cos(angle) * flower.size * 0.4,
+                        flower.y + Math.sin(angle) * flower.size * 0.4,
+                        flower.size * 0.4,
+                        flower.size * 0.4,
+                        0, 0, Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+                // Flower center
+                ctx.fillStyle = '#FFFACD';
+                ctx.beginPath();
+                ctx.arc(flower.x, flower.y, flower.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
             });
         }
 
         function drawPlayer() {
-            // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            const px = player.x;
+            const py = player.y;
+            const pw = player.width;
+            const ph = player.height;
+
+            // Soft shadow
+            ctx.fillStyle = 'rgba(200, 180, 200, 0.3)';
             ctx.beginPath();
-            ctx.ellipse(player.x + player.width / 2, groundY + 5, player.width / 2, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(px + pw / 2, groundY + 5, pw / 2 + 5, 8, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Body
+            // Cat ears
             ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Left ear
+            ctx.beginPath();
+            ctx.moveTo(px + 5, py + 5);
+            ctx.lineTo(px + 2, py - 15);
+            ctx.lineTo(px + 18, py + 5);
+            ctx.closePath();
+            ctx.fill();
+            // Right ear
+            ctx.beginPath();
+            ctx.moveTo(px + pw - 5, py + 5);
+            ctx.lineTo(px + pw - 2, py - 15);
+            ctx.lineTo(px + pw - 18, py + 5);
+            ctx.closePath();
+            ctx.fill();
 
-            // Body gradient overlay
-            const bodyGradient = ctx.createLinearGradient(player.x, player.y, player.x + player.width, player.y + player.height);
-            bodyGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            bodyGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
-            ctx.fillStyle = bodyGradient;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // Inner ears (pink)
+            ctx.fillStyle = player.noseColor;
+            ctx.beginPath();
+            ctx.moveTo(px + 7, py + 3);
+            ctx.lineTo(px + 5, py - 8);
+            ctx.lineTo(px + 14, py + 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(px + pw - 7, py + 3);
+            ctx.lineTo(px + pw - 5, py - 8);
+            ctx.lineTo(px + pw - 14, py + 3);
+            ctx.closePath();
+            ctx.fill();
 
-            // Border
-            ctx.strokeStyle = '#c73e54';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(player.x, player.y, player.width, player.height);
+            // Cat body (rounded rectangle)
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.roundRect(px, py, pw, ph, 12);
+            ctx.fill();
 
-            // Eyes
+            // Body highlight
+            ctx.fillStyle = player.innerColor;
+            ctx.beginPath();
+            ctx.roundRect(px + 8, py + 8, pw - 16, ph - 20, 8);
+            ctx.fill();
+
+            // Eyes (cute oval eyes)
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.ellipse(px + 15, py + 20, 9, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(px + 35, py + 20, 9, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Pupils
             ctx.fillStyle = player.eyeColor;
             ctx.beginPath();
-            ctx.ellipse(player.x + 15, player.y + 18, 8, 10, 0, 0, Math.PI * 2);
+            ctx.ellipse(px + 17, py + 21, 5, 7, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.ellipse(player.x + 35, player.y + 18, 8, 10, 0, 0, Math.PI * 2);
+            ctx.ellipse(px + 37, py + 21, 5, 7, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Pupils (looking forward)
-            ctx.fillStyle = player.pupilColor;
+            // Eye sparkles
+            ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(player.x + 18, player.y + 18, 4, 0, Math.PI * 2);
+            ctx.arc(px + 15, py + 18, 2, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(player.x + 38, player.y + 18, 4, 0, Math.PI * 2);
+            ctx.arc(px + 35, py + 18, 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Smile
-            ctx.strokeStyle = '#000';
+            // Blush circles
+            ctx.fillStyle = player.blushColor;
+            ctx.beginPath();
+            ctx.ellipse(px + 6, py + 28, 6, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(px + 44, py + 28, 6, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cute nose
+            ctx.fillStyle = player.noseColor;
+            ctx.beginPath();
+            ctx.moveTo(px + 25, py + 28);
+            ctx.lineTo(px + 22, py + 33);
+            ctx.lineTo(px + 28, py + 33);
+            ctx.closePath();
+            ctx.fill();
+
+            // Mouth (w shape for cat)
+            ctx.strokeStyle = '#9B8AA5';
             ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.arc(player.x + 25, player.y + 32, 10, 0.1 * Math.PI, 0.9 * Math.PI);
+            ctx.moveTo(px + 18, py + 37);
+            ctx.quadraticCurveTo(px + 22, py + 40, px + 25, py + 36);
+            ctx.quadraticCurveTo(px + 28, py + 40, px + 32, py + 37);
             ctx.stroke();
+
+            // Whiskers
+            ctx.strokeStyle = '#C9B1FF';
+            ctx.lineWidth = 1.5;
+            // Left whiskers
+            ctx.beginPath();
+            ctx.moveTo(px + 5, py + 30);
+            ctx.lineTo(px - 8, py + 28);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(px + 5, py + 34);
+            ctx.lineTo(px - 8, py + 36);
+            ctx.stroke();
+            // Right whiskers
+            ctx.beginPath();
+            ctx.moveTo(px + 45, py + 30);
+            ctx.lineTo(px + 58, py + 28);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(px + 45, py + 34);
+            ctx.lineTo(px + 58, py + 36);
+            ctx.stroke();
+
+            // Tail (when not jumping, show a cute curved tail)
+            if (!player.jumping) {
+                ctx.strokeStyle = player.color;
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(px + pw - 3, py + ph - 10);
+                ctx.quadraticCurveTo(px + pw + 15, py + ph - 25, px + pw + 10, py + ph - 40);
+                ctx.stroke();
+            }
         }
 
         function drawObstacle(obstacle) {
-            // Shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            // Soft shadow
+            ctx.fillStyle = 'rgba(200, 180, 200, 0.25)';
             ctx.beginPath();
-            ctx.ellipse(obstacle.x + obstacle.width / 2, groundY + 5, obstacle.width / 2, 6, 0, 0, Math.PI * 2);
+            ctx.ellipse(obstacle.x + obstacle.width / 2, groundY + 5, obstacle.width / 2 + 3, 6, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Cactus-like obstacle
-            const gradient = ctx.createLinearGradient(obstacle.x, obstacle.y, obstacle.x + obstacle.width, obstacle.y);
-            gradient.addColorStop(0, '#2ECC71');
-            gradient.addColorStop(0.5, '#27AE60');
-            gradient.addColorStop(1, '#1E8449');
-            ctx.fillStyle = gradient;
+            // Cute mushroom obstacle
+            const capHeight = obstacle.height * 0.6;
+            const stemHeight = obstacle.height * 0.5;
+            const capWidth = obstacle.width * 1.4;
+            
+            // Mushroom stem
+            ctx.fillStyle = '#FFF5EE';
+            ctx.beginPath();
+            ctx.roundRect(
+                obstacle.x + obstacle.width * 0.15,
+                obstacle.y + capHeight - 5,
+                obstacle.width * 0.7,
+                stemHeight,
+                [0, 0, 8, 8]
+            );
+            ctx.fill();
 
-            // Main body
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            // Stem highlight
+            ctx.fillStyle = '#FFFAF5';
+            ctx.beginPath();
+            ctx.roundRect(
+                obstacle.x + obstacle.width * 0.25,
+                obstacle.y + capHeight,
+                obstacle.width * 0.2,
+                stemHeight - 10,
+                4
+            );
+            ctx.fill();
 
-            // Spikes/details
-            ctx.fillStyle = '#1E8449';
-            for (let i = 0; i < obstacle.height; i += 15) {
-                ctx.beginPath();
-                ctx.moveTo(obstacle.x, obstacle.y + i);
-                ctx.lineTo(obstacle.x - 5, obstacle.y + i + 7);
-                ctx.lineTo(obstacle.x, obstacle.y + i + 14);
-                ctx.fill();
+            // Mushroom cap
+            const capColors = ['#FFB5C5', '#B4D4E7', '#C9B1FF', '#FFFACD'];
+            const capColor = capColors[Math.floor(obstacle.x) % 4];
+            ctx.fillStyle = capColor;
+            ctx.beginPath();
+            ctx.ellipse(
+                obstacle.x + obstacle.width / 2,
+                obstacle.y + capHeight / 2,
+                capWidth / 2,
+                capHeight / 2,
+                0, Math.PI, 0
+            );
+            ctx.fill();
 
-                ctx.beginPath();
-                ctx.moveTo(obstacle.x + obstacle.width, obstacle.y + i);
-                ctx.lineTo(obstacle.x + obstacle.width + 5, obstacle.y + i + 7);
-                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + i + 14);
-                ctx.fill();
-            }
+            // Cap top curve
+            ctx.beginPath();
+            ctx.ellipse(
+                obstacle.x + obstacle.width / 2,
+                obstacle.y + capHeight / 2,
+                capWidth / 2,
+                capHeight / 2,
+                0, 0, Math.PI * 2
+            );
+            ctx.fill();
 
-            // Border
-            ctx.strokeStyle = '#145A32';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            // Cute spots on cap
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.arc(obstacle.x + obstacle.width * 0.3, obstacle.y + capHeight * 0.35, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(obstacle.x + obstacle.width * 0.7, obstacle.y + capHeight * 0.4, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(obstacle.x + obstacle.width * 0.5, obstacle.y + capHeight * 0.2, 3, 0, Math.PI * 2);
+            ctx.fill();
         }
 
         function spawnObstacle() {
@@ -359,6 +555,17 @@
                 if (line.x + line.width < 0) {
                     line.x = canvas.width;
                     line.width = Math.random() * 30 + 10;
+                }
+            });
+        }
+
+        function updateFlowers() {
+            flowers.forEach(flower => {
+                flower.x -= gameSpeed * 0.5;
+                if (flower.x + flower.size < 0) {
+                    flower.x = canvas.width + flower.size;
+                    flower.y = groundY + 10 + Math.random() * 30;
+                    flower.color = ['#FFB5C5', '#B4D4E7', '#C9B1FF', '#FFFACD'][Math.floor(Math.random() * 4)];
                 }
             });
         }
@@ -432,6 +639,7 @@
             updateObstacles();
             updateClouds();
             updateGroundLines();
+            updateFlowers();
 
             // Draw obstacles
             obstacles.forEach(obstacle => drawObstacle(obstacle));
@@ -511,3 +719,4 @@
     </script>
 </body>
 </html>
+
